@@ -1,11 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agro Animal - Cuidados e Produtos para Pets</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
-    
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">Agro Animal</div>
+    <nav class="nav">
+      <ul class="nav-list">
+        <li><a href="#home">Início</a></li>
+        <li><a href="products.html">Produtos</a></li>
+        <li><a href="#services">Serviços</a></li>
+        <li><a href="#about">Sobre</a></li>
+      </ul>
+      <button class="nav-toggle" aria-label="Toggle Menu">☰</button>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-banner">
+          <h1 class="banner-title">Agro Animal</h1>
+          <p class="banner-subtitle">Seu Parceiro em Cuidados Pet</p>
+        </div>
+        <p class="hero-text">Descubra produtos premium e serviços especializados para o bem-estar do seu pet.</p>
+        <div class="hero-ctas">
+          <a href="products.html" class="btn btn-primary">Explore Produtos</a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img src="agro.logo.png" alt="Banner Agro Animal" loading="lazy">
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="products" class="products section">
+      <div class="section-header">
+        <h2>Nossos Produtos</h2>
+        <p class="section-subtitle">Qualidade e conforto para seu pet</p>
+      </div>
+      <div class="carousel-container">
+        <div class="carousel">
+          <button class="carousel-btn prev" aria-label="Previous">❮</button>
+          <div class="carousel-track">
+            <div class="carousel-slide">
+              <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1601758123927-1b6f38a1e0a8?auto=format&fit=crop&w=800&q=80" alt="Ração Premium" loading="lazy">
+                <h3>Ração Premium 10kg</h3>
+                <p class="product-price">R$129,90</p>
+                <a href="products.html" class="btn btn-small">Comprar</a>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1598133894008-97f39cf9b8f8?auto=format&fit=crop&w=800&q=80" alt="Coleira Estilizada" loading="lazy">
+                <h3>Coleira Estilizada</h3>
+                <p class="product-price">R$49,90</p>
+                <a href="products.html" class="btn btn-small">Comprar</a>
+              </div>
+            </div>
+            <div class="carousel-slide">
+              <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1583337130417-f449cf9b89dd?auto=format&fit=crop&w=800&q=80" alt="Cama Ortopédica" loading="lazy">
+                <h3>Cama Ortopédica</h3>
+                <p class="product-price">R$199,90</p>
+                <a href="products.html" class="btn btn-small">Comprar</a>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-btn next" aria-label="Next">❯</button>
+          <div class="carousel-dots"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="services section">
+      <div class="section-header">
+        <h2>Nossos Serviços</h2>
+        <p class="section-subtitle">Cuide do seu pet com excelência</p>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <img src="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=800&q=80" alt="Banho e Tosa" loading="lazy">
+          <h3>Banho & Tosa</h3>
+          <p>Cuidados especiais com produtos naturais.</p>
+        </div>
+        <div class="service-card">
+          <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80" alt="Veterinário" loading="lazy">
+          <h3>Atendimento Veterinário</h3>
+          <p>Consultas e vacinas com profissionais qualificados.</p>
+        </div>
+        <div class="service-card">
+          <img src="https://images.unsplash.com/photo-1573497019412-0a9a7232c2f7?auto=format&fit=crop&w=800&q=80" alt="Entrega" loading="lazy">
+          <h3>Entrega Rápida</h3>
+          <p>Receba seus produtos em casa.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about section">
+      <div class="section-header">
+        <h2>Sobre Nós</h2>
+        <p class="section-subtitle">Nossa paixão por pets</p>
+      </div>
+      <div class="about-content">
+        <div class="about-text">
+          <p>A Agro Animal é uma loja dedicada ao bem-estar dos pets, oferecendo produtos de alta qualidade e serviços personalizados. Nosso compromisso é proporcionar cuidado e alegria para todos os animais desde 2015.</p>
+          <div class="about-details">
+            <div><strong>Missão:</strong> Cuidar com amor e qualidade.</div>
+            <div><strong>Visão:</strong> Ser referência em produtos pet.</div>
+            <div><strong>Valores:</strong> Ética, dedicação e inovação.</div>
+          </div>
+        </div>
+        <div class="about-image">
+          <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=900&q=80" alt="Equipe Agro Animal" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+   
+
+    <!-- FAQ -->
+    <section id="faq" class="faq section">
+      <div class="section-header">
+        <h2>Perguntas Frequentes</h2>
+        <p class="section-subtitle">Encontre respostas para suas dúvidas</p>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Como faço um pedido?</summary>
+          <p>Acesse a seção de produtos, selecione o item e siga as instruções para compra.</p>
+        </details>
+        <details>
+          <summary>Vocês entregam na minha região?</summary>
+          <p>Sim, cobrimos a maior parte da cidade. Confirme no contato.</p>
+        </details>
+        <details>
+          <summary>Quais são os horários de atendimento?</summary>
+          <p>Estamos abertos de segunda a sábado, das 08:00 às 19:00.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">Agro Animal</div>
+        <p class="footer-text">© 2025 Agro Animal - Todos os direitos reservados.</p>
+        <div class="footer-social">
+          <a href="#" aria-label="Instagram">Instagram</a>
+          <a href="#" aria-label="Facebook">Facebook</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- FLOATING CTA -->
+    <button class="floating-cta" aria-label="Fale Conosco">📞</button>
+  </main>
 </body>
 </html>

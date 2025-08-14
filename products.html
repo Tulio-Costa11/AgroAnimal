@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agro Animal — Produtos</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- small page-specific styles (modal / grid tweaks) -->
+  <style>
+    /* Produtos page specific */
+    .products-hero{ padding:56px 6vw; text-align:center; background: linear-gradient(180deg,#FFFDF0,#FFF7D6); border-bottom:1px solid rgba(11,61,46,0.04); }
+    .products-hero h1{ font-size:2rem; color:var(--verde-escuro); margin-bottom:8px; }
+    .products-hero p{ color:var(--muted); margin-bottom:18px; }
+
+    .controls{ max-width:1100px; margin:18px auto 28px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .search {
+      display:flex; gap:8px; align-items:center;
+      background:var(--branco); padding:8px 10px; border-radius:10px; box-shadow: 0 6px 18px rgba(12,20,14,0.04);
+    }
+    .search input{ border:0; outline:none; font-size:0.98rem; padding:8px; min-width:260px; }
+    .filters{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .filter-btn{ background:transparent; border:1px solid rgba(11,61,46,0.08); padding:8px 12px; border-radius:8px; cursor:pointer; color:var(--verde-escuro); font-weight:600; }
+    .filter-btn.active{ background: var(--verde-claro); color: #fff; border-color: var(--verde-claro); }
+
+    /* Grid */
+    .products-grid{ max-width:1200px; margin: 0 auto 36px; display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px; padding: 0 12px; }
+    .prod-item{ background:var(--branco); border-radius:12px; padding:12px; box-shadow: var(--shadow); border:1px solid rgba(11,61,46,0.04); cursor:pointer; transition: transform .18s, box-shadow .18s; display:flex; flex-direction:column; }
+    .prod-item:hover{ transform: translateY(-8px); box-shadow: 0 26px 46px rgba(12,20,14,0.10); }
+    .prod-item img{ width:100%; height:170px; object-fit:cover; border-radius:8px; margin-bottom:10px; }
+    .prod-meta{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:8px; }
+    .prod-meta .price{ color:var(--dourado); font-weight:800; }
+    .prod-meta .btn{ background:var(--verde-escuro); color:#fff; padding:8px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; }
+
+    /* Modal */
+    .modal-backdrop{ position:fixed; inset:0; background: rgba(6,9,6,0.52); display:none; align-items:center; justify-content:center; z-index:2200; padding:20px; }
+    .modal{ width: min(920px, 98%); max-height: 92vh; overflow:auto; background:var(--branco); border-radius:14px; padding:18px; box-shadow: 0 40px 80px rgba(6,10,6,0.45); display:flex; gap:18px; flex-direction:row; }
+    .modal-left{ flex:0 0 48%; }
+    .modal-left img{ width:100%; height:100%; object-fit:cover; border-radius:10px; }
+    .modal-right{ flex:1; display:flex; flex-direction:column; gap:12px; }
+    .close-modal{ margin-left:auto; background:transparent; border:none; font-size:20px; cursor:pointer; color:var(--muted); }
+    .modal-right h3{ margin:0; color:var(--verde-escuro); }
+    .modal-right p{ color:var(--muted); margin:0; }
+    .modal-right .price{ font-weight:800; color:var(--dourado); font-size:1.25rem; }
+    .modal-actions{ margin-top:6px; display:flex; gap:8px; }
+    .btn-primary{ background:var(--verde-escuro); color:#fff; border:none; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700; }
+    .btn-outline{ background:transparent; border:1px solid rgba(11,61,46,0.08); padding:10px 14px; border-radius:10px; cursor:pointer; }
+    @media(max-width:900px){
+      .modal{ flex-direction:column; }
+      .modal-left{ width:100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- header (same markup as index.html) -->
+  <header>
+    <div class="logo">Agro Animal</div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="products.html" class="active">Produtos</a></li>
+        <li><a href="index.html#nova">Nova Unidade</a></li>
+        <li><a href="index.html#sobre">Sobre Nós</a></li>
+        <li><a href="index.html#contato">Contato</a></li>
+      </ul>
+    </nav>
+    <div class="toggle-menu">☰</div>
+  </header>
+
+  <!-- hero -->
+  <section class="products-hero">
+    <h1>Todos os Produtos</h1>
+    <p>Encontre ração, brinquedos, acessórios e muito mais — selecionados com carinho para o seu pet.</p>
+  </section>
+
+  <!-- controls: search + filters -->
+  <div class="controls">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:.6"><path d="M21 21l-4.35-4.35" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <input id="searchInput" type="text" placeholder="Procurar produto (ex: ração, brinquedo, coleira)" />
+    </div>
+
+    <div class="filters" aria-label="Filtros">
+      <button class="filter-btn active" data-filter="all">Todos</button>
+      <button class="filter-btn" data-filter="racao">Ração</button>
+      <button class="filter-btn" data-filter="brinquedo">Brinquedos</button>
+      <button class="filter-btn" data-filter="cama">Camas</button>
+      <button class="filter-btn" data-filter="acessorio">Acessórios</button>
+    </div>
+  </div>
+
+  <!-- grid -->
+  <main class="products-grid" id="productsGrid">
+    <!-- each card has data attributes used by the JS modal -->
+    <article class="prod-item" data-name="Ração Sênior Premium" data-category="racao" data-price="R$ 129,90" data-desc="Ração completa e balanceada para cães adultos e idosos. Fórmula com gluco/omega para saúde das articulações.">
+      <img src="https://images.unsplash.com/photo-1601758123927-1b6f38a1e0a8?auto=format&fit=crop&w=800&q=80" alt="Ração Premium">
+      <h3>Ração Sênior Premium</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 129,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Brinquedo Interativo Bola" data-category="brinquedo" data-price="R$ 49,90" data-desc="Bola interativa resistente, ideal para cães de pequeno e médio porte.">
+      <img src="https://images.unsplash.com/photo-1598133894008-97f39cf9b8f8?auto=format&fit=crop&w=800&q=80" alt="Brinquedo Bola">
+      <h3>Brinquedo Interativo Bola</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 49,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Cama Ortopédica Lux" data-category="cama" data-price="R$ 199,90" data-desc="Cama ortopédica com espuma memory e revestimento lavável. Ideal para cães idosos.">
+      <img src="https://images.unsplash.com/photo-1583337130417-f449cf9b89dd?auto=format&fit=crop&w=800&q=80" alt="Cama Ortopédica">
+      <h3>Cama Ortopédica Lux</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 199,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Coleira Ajustável" data-category="acessorio" data-price="R$ 29,90" data-desc="Coleira resistente com fivela reforçada e ajuste rápido.">
+      <img src="https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=800&q=80" alt="Coleira">
+      <h3>Coleira Ajustável</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 29,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Ração Filhote Growth" data-category="racao" data-price="R$ 99,90" data-desc="Fórmula especial para filhotes com DHA para desenvolvimento cognitivo.">
+      <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80" alt="Ração Filhote">
+      <h3>Ração Filhote Growth</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 99,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Arranhador para Gatos" data-category="brinquedo" data-price="R$ 89,90" data-desc="Arranhador robusto com plataforma e poste revestido em sisal.">
+      <img src="https://images.unsplash.com/photo-1559239115-5f8a68323f6c?auto=format&fit=crop&w=800&q=80" alt="Arranhador">
+      <h3>Arranhador para Gatos</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 89,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <!-- adicione mais produtos seguindo o mesmo padrão -->
+    <article class="prod-item" data-name="Tapete Higiênico 30un" data-category="acessorio" data-price="R$ 39,90" data-desc="Tapetes absorventes com alta capacidade para treinos e ambientes internos.">
+      <img src="https://images.unsplash.com/photo-1555685812-4b943f1e9d5f?auto=format&fit=crop&w=800&q=80" alt="Tapete Higiênico">
+      <h3>Tapete Higiênico 30un</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 39,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Bicicleta Pet Carrier" data-category="acessorio" data-price="R$ 249,90" data-desc="Bag para transporte de animais pequenos com alça e fechamento seguro.">
+      <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=800&q=80" alt="Carrier">
+      <h3>Pet Carrier</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 249,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Coleira LED Noturna" data-category="acessorio" data-price="R$ 59,90" data-desc="Coleira com LED recarregável para passeios noturnos.">
+      <img src="https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=800&q=80" alt="Coleira LED">
+      <h3>Coleira LED Noturna</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 59,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+
+    <article class="prod-item" data-name="Comedouro Slow Feed" data-category="acessorio" data-price="R$ 79,90" data-desc="Comedouro anti-engolir que auxilia na digestão do pet.">
+      <img src="https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=800&q=80" alt="Comedouro">
+      <h3>Comedouro Slow Feed</h3>
+      <div class="prod-meta">
+        <div class="price">R$ 79,90</div>
+        <button class="btn">Ver</button>
+      </div>
+    </article>
+  </main>
+
+  <!-- modal (hidden) -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-left"><img id="modalImg" src="" alt="Produto"></div>
+      <div class="modal-right">
+        <button class="close-modal" id="closeModal" aria-label="Fechar">✕</button>
+        <h3 id="modalTitle">Título</h3>
+        <p id="modalDesc">Descrição do produto</p>
+        <div class="price" id="modalPrice">R$ 0,00</div>
+        <div class="modal-actions">
+          <button class="btn-primary">Comprar</button>
+          <button class="btn-outline" id="modalClose2">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer style="margin-top:28px;">
+    <p>&copy; 2025 Agro Animal — Produtos</p>
+  </footer>
+
+  <script src="products.js" defer></script>
+</body>
+</html>
