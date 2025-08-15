@@ -1,17 +1,10 @@
-// script.js — Versão sem drawer (100% cliente, sem backend, sem storage)
-// Inclui: menu mobile, shrink-on-scroll, smooth anchors, hero parallax,
-// reveal on scroll, carousel (prev/next/dots/drag/autoplay), floating CTA -> scroll to contact,
-// toasts, atalhos de teclado.
-
-/* global document, window, Image */
-
 document.addEventListener('DOMContentLoaded', () => {
 
   /* -------------------------
      Helpers
   ------------------------- */
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from((ctx || document).querySelectorAll(sel));
+  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
 
   function debounce(fn, wait = 100) {
     let t;
@@ -61,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* -------------------------
      Header: mobile toggle + shrink on scroll + outside click
   ------------------------- */
-  const header = document.querySelector('.header') || document.querySelector('.site-header') || document.querySelector('header');
-  const navToggle = document.querySelector('.nav-toggle') || document.querySelector('.toggle-menu') || document.querySelector('.site-header .toggle-menu');
-  const navList = document.querySelector('.nav-list') || (header && header.querySelector('nav ul'));
+  const header = $('.header');
+  const navToggle = $('.nav-toggle');
+  const navList = $('.nav-list');
 
   if (navToggle && navList) {
     navToggle.addEventListener('click', () => {
@@ -78,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
       navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
 
-    // close mobile menu when clicking outside (only when mobile)
     document.addEventListener('click', (ev) => {
       if (!navList || !navToggle) return;
       if (window.innerWidth > 720) return;
@@ -117,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (el) {
         ev.preventDefault();
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // close mobile nav if open
         if (navList && window.innerWidth <= 720) {
           navList.style.display = 'none';
           navList.classList.remove('open');
@@ -130,10 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
   /* -------------------------
      Hero parallax (mouse + scroll)
   ------------------------- */
-  const hero = document.querySelector('#home') || document.querySelector('.hero');
+  const hero = $('#home');
   const heroImage = hero ? hero.querySelector('.hero-image img') : null;
   if (hero && heroImage) {
-    // Mouse parallax
     hero.addEventListener('mousemove', (e) => {
       const rect = hero.getBoundingClientRect();
       const px = (e.clientX - rect.left) / rect.width - 0.5;
@@ -147,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
       heroImage.style.transform = '';
       heroImage.style.transition = 'transform .4s cubic-bezier(.2,.9,.2,1)';
     });
-    // Scroll parallax
     window.addEventListener('scroll', () => {
       const sc = window.scrollY;
       heroImage.style.transform = `translate3d(0, ${Math.min(sc * -0.03, -12)}px, 0) scale(1.01)`;
@@ -174,42 +163,44 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* -------------------------
-     Carousel (per .carousel)
+     Carousel (transform-based sliding, circular, drag + buttons)
   ------------------------- */
   $$('.carousel').forEach(carousel => {
     const track = carousel.querySelector('.carousel-track');
     if (!track) return;
 
-    // Wrap into .inner for consistent handling
-    let inner = track.querySelector('.inner');
-    if (!inner) {
-      inner = document.createElement('div');
-      inner.className = 'inner';
-      while (track.firstChild) inner.appendChild(track.firstChild);
-      track.appendChild(inner);
-    }
-
-    const slides = Array.from(inner.querySelectorAll('.carousel-slide'));
+    const slides = Array.from(track.querySelectorAll('.carousel-slide'));
     if (!slides.length) return;
 
     const prevBtn = carousel.querySelector('.prev');
     const nextBtn = carousel.querySelector('.next');
     const dotsWrap = carousel.querySelector('.carousel-dots');
 
-    let current = 0;
-    const getCenterScroll = (index) => {
-      const slide = slides[index];
-      const slideLeft = slide.offsetLeft;
-      const offset = (track.clientWidth - slide.clientWidth) / 2;
-      return Math.round(slideLeft - offset);
+    let currentIndex = 0;
+    let slideWidth = slides[0].offsetWidth + parseFloat(getComputedStyle(track).gap || 32);
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+
+    const setSliderPosition = () => {
+      track.style.transform = `translateX(${currentTranslate}px)`;
+    };
+
+    const updateActive = () => {
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === currentIndex));
     };
 
     const goTo = (index) => {
-      index = Math.max(0, Math.min(slides.length - 1, index));
-      const pos = getCenterScroll(index);
-      track.scrollTo({ left: pos, behavior: 'smooth' });
-      current = index;
+      if (index < 0) currentIndex = slides.length - 1;
+      else if (index >= slides.length) currentIndex = 0;
+      else currentIndex = index;
+
+      prevTranslate = currentTranslate = -currentIndex * slideWidth;
+      track.style.transition = 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+      setSliderPosition();
       updateDots();
+      updateActive();
     };
 
     const buildDots = () => {
@@ -218,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       slides.forEach((s, i) => {
         const b = document.createElement('button');
         b.className = 'dot';
-        b.setAttribute('aria-label', `Ir para ${i+1}`);
+        b.setAttribute('aria-label', `Ir para slide ${i+1}`);
         b.addEventListener('click', () => goTo(i));
         dotsWrap.appendChild(b);
       });
@@ -227,91 +218,90 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateDots = () => {
       if (!dotsWrap) return;
-      Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('active', i === current));
+      Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('active', i === currentIndex));
     };
 
-    // prev/next handlers
-    prevBtn && prevBtn.addEventListener('click', () => goTo(current - 1));
-    nextBtn && nextBtn.addEventListener('click', () => goTo(current + 1));
+    prevBtn && prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+    nextBtn && nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
 
-    // update current after scroll
-    let scrollTimer;
-    track.addEventListener('scroll', () => {
-      clearTimeout(scrollTimer);
-      scrollTimer = setTimeout(() => {
-        const centers = slides.map((s, i) => ({ i, dist: Math.abs(track.scrollLeft - getCenterScroll(i)) }));
-        centers.sort((a, b) => a.dist - b.dist);
-        current = centers[0].i;
-        updateDots();
-      }, 120);
-    }, { passive: true });
-
-    // autoplay
-    let autoplay = null;
-    const startAuto = () => {
-      if (autoplay) return;
-      autoplay = setInterval(() => {
-        const nextIdx = (current + 1) % slides.length;
-        goTo(nextIdx);
-      }, 4200);
-    };
-    const stopAuto = () => { if (autoplay) { clearInterval(autoplay); autoplay = null; } };
-
-    track.addEventListener('mouseenter', stopAuto);
-    track.addEventListener('mouseleave', startAuto);
-
-    // pointer drag
-    let isDown = false, startX = 0, scrollLeft = 0;
+    // Drag handling (ignora botões dentro do slide)
     track.addEventListener('pointerdown', (e) => {
-      isDown = true; startX = e.clientX; scrollLeft = track.scrollLeft; track.setPointerCapture(e.pointerId); track.style.cursor = 'grabbing';
+      if (e.target.closest('.prev, .next, [data-prev], [data-next], button, a, .btn')) return;
+      isDragging = true;
+      startPos = e.clientX;
+      track.style.transition = '';
       stopAuto();
+      track.setPointerCapture(e.pointerId);
     });
+
     track.addEventListener('pointermove', (e) => {
-      if (!isDown) return;
-      const dx = e.clientX - startX;
-      track.scrollLeft = scrollLeft - dx;
+      if (!isDragging) return;
+      const currentPosition = e.clientX;
+      currentTranslate = prevTranslate + currentPosition - startPos;
+      setSliderPosition();
     });
+
     const endDrag = () => {
-      if (!isDown) return; isDown = false; track.style.cursor = '';
-      const centers = slides.map((s, i) => ({ i, dist: Math.abs(track.scrollLeft - getCenterScroll(i)) }));
-      centers.sort((a,b) => a.dist - b.dist);
-      goTo(centers[0].i);
+      if (!isDragging) return;
+      isDragging = false;
+      const movedBy = currentTranslate - prevTranslate;
+      if (movedBy < -100) currentIndex = (currentIndex + 1) % slides.length;
+      if (movedBy > 100) currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      goTo(currentIndex);
       startAuto();
     };
+
     track.addEventListener('pointerup', endDrag);
     track.addEventListener('pointercancel', endDrag);
     track.addEventListener('pointerleave', endDrag);
 
-    // keyboard navigation
-    carousel.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') goTo(Math.min(current + 1, slides.length - 1));
-      if (e.key === 'ArrowLeft') goTo(Math.max(current - 1, 0));
+    // Delegar clique em prev/next dentro de slides
+    carousel.addEventListener('click', (ev) => {
+      const prevEl = ev.target.closest('.prev, [data-prev]');
+      const nextEl = ev.target.closest('.next, [data-next]');
+      if (prevEl) { ev.preventDefault(); goTo(currentIndex - 1); }
+      if (nextEl) { ev.preventDefault(); goTo(currentIndex + 1); }
     });
 
-    // init
+    // Autoplay
+    let autoplay = null;
+    const startAuto = () => {
+      if (autoplay) return;
+      autoplay = setInterval(() => goTo((currentIndex + 1) % slides.length), 4200);
+    };
+    const stopAuto = () => { clearInterval(autoplay); autoplay = null; };
+
+    carousel.addEventListener('mouseenter', stopAuto);
+    carousel.addEventListener('mouseleave', startAuto);
+
+    // Resize handler
+    window.addEventListener('resize', debounce(() => {
+      slideWidth = slides[0].offsetWidth + parseFloat(getComputedStyle(track).gap || 32);
+      goTo(currentIndex);
+    }, 120));
+
+    // Init
     buildDots();
     goTo(0);
     startAuto();
-    window.addEventListener('resize', debounce(() => goTo(current), 120));
   });
 
   /* -------------------------
      Floating CTA: scroll to #contato
-     (no drawer, no backend)
   ------------------------- */
-  const floating = document.querySelector('.floating-cta');
+  const floating = $('.floating-cta');
   if (floating) {
     floating.addEventListener('click', () => {
-      const c = document.getElementById('contato') || document.getElementById('contact') || document.querySelector('.contato');
+      const c = document.getElementById('contato') || document.querySelector('.contato');
       if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
       else createToast('Seção de contato não encontrada', 'error', 2200);
     });
   }
 
   /* -------------------------
-     Simulate add to cart (client-only)
+     Simulate add to cart
   ------------------------- */
-  $$('.btn-small, .product-card .btn').forEach(btn => {
+  $$('[data-add-to-cart]').forEach(btn => {
     btn.addEventListener('click', (ev) => {
       ev.preventDefault();
       createToast('Adicionado ao carrinho (simulação) ✔', 'success', 1400);
@@ -319,26 +309,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* -------------------------
-     Keyboard shortcuts (client-only)
-     - "c": go to contato section
-     - "g": go to products
-     - "Esc": noop (keeps behaviour simple)
-  ------------------------- */
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'c' || e.key === 'C') {
-      const c = document.getElementById('contato') || document.querySelector('.contato');
-      if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      else createToast('Seção de contato não encontrada', 'error', 1800);
-    } else if (e.key === 'g' || e.key === 'G') {
-      const p = document.getElementById('products') || document.querySelector('.products');
-      p && p.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  });
-
-  /* -------------------------
-     Small onboarding tip
-  ------------------------- */
-  setTimeout(() => createToast('Dica: pressione "c" para ir rapidamente ao contato.', 'info', 4200), 1200);
-
-}); // DOMContentLoaded
+});
