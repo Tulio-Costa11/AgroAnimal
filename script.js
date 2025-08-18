@@ -108,7 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = document.querySelector(href);
       if (el) {
         ev.preventDefault();
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const headerHeight = header ? header.offsetHeight : 0;
+        const targetPosition = el.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
         if (navList && window.innerWidth <= 720) {
           navList.style.display = 'none';
           navList.classList.remove('open');
@@ -293,20 +298,17 @@ document.addEventListener('DOMContentLoaded', () => {
   if (floating) {
     floating.addEventListener('click', () => {
       const c = document.getElementById('contato') || document.querySelector('.contato');
-      if (c) c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      else createToast('Seção de contato não encontrada', 'error', 2200);
+      if (c) {
+        const headerHeight = header ? header.offsetHeight : 0;
+        const targetPosition = c.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        });
+      } else {
+        createToast('Seção de contato não encontrada', 'error', 2200);
+      }
     });
   }
-
-  /* -------------------------
-     Simulate add to cart
-  ------------------------- */
-  $$('[data-add-to-cart]').forEach(btn => {
-    btn.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      createToast('Adicionado ao carrinho (simulação) ✔', 'success', 1400);
-      btn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 260 });
-    });
-  });
 
 });
